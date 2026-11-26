@@ -6,6 +6,17 @@ A Windows tray application that listens to a microphone for a wake phrase ("hey 
 
 Speech recognition runs locally. Only the transcribed text is sent to ChatGPT.
 
+## Download
+
+No coding knowledge or .NET installation is needed to use the app on Windows 10 or 11 (64-bit):
+
+1. Download `VoiceAssistent-win-x64.zip` from the [latest release](https://github.com/fishddy/VoiceAssistent/releases/latest).
+2. Right-click the zip and choose **Extract All…**.
+3. Open the extracted `VoiceAssistent` folder and double-click `VoiceAssistent.exe`.
+4. If Windows shows "Windows protected your PC", click **More info**, then **Run anyway**. The app is not code-signed, so Windows warns about it.
+
+The requirements below about a microphone, a speech recognizer and an internet connection still apply. The .NET SDK is only needed to build from source.
+
 ## Requirements
 
 - Windows 10 or 11 (64-bit)
