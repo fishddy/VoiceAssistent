@@ -6,11 +6,11 @@ public sealed record SpeechSettings
 
     public string? WakePhraseCulture { get; init; }
 
-    public IReadOnlyList<string> WakePhrases { get; init; } = ["hey claude"];
+    public IReadOnlyList<string> WakePhrases { get; init; } = ["hey james"];
 
     public float WakePhraseMinimumConfidence { get; init; } = 0.6f;
 
-    public IReadOnlyList<string> ClosePhrases { get; init; } = ["danke"];
+    public IReadOnlyList<string> ClosePhrases { get; init; } = ["thanks james", "danke james"];
 
     public string? TranscriptionLanguage { get; init; }
 

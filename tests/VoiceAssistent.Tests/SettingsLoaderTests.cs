@@ -11,7 +11,7 @@ public class SettingsLoaderTests
         var settings = SettingsLoader.Parse("{}");
 
         Assert.Equal(ScreenCorner.TopRight, settings.Overlay.Corner);
-        Assert.Equal(["hey claude"], settings.Speech.WakePhrases);
+        Assert.Equal(["hey james"], settings.Speech.WakePhrases);
         Assert.Null(settings.Speech.WakePhraseCulture);
         Assert.Null(settings.Speech.TranscriptionLanguage);
         Assert.Equal(TranscriptionModel.LargeV3Turbo, settings.Speech.TranscriptionModel);
@@ -68,7 +68,7 @@ public class SettingsLoaderTests
         var settings = SettingsLoader.Parse("""{ "Overlay": { "HideAfterSilenceSeconds": 8, "Margin": 30 } }""");
 
         Assert.Equal(30, settings.Overlay.Margin);
-        Assert.Equal(["danke"], settings.Speech.ClosePhrases);
+        Assert.Equal(["thanks james", "danke james"], settings.Speech.ClosePhrases);
     }
 
     [Fact]
@@ -141,6 +141,6 @@ public class SettingsLoaderTests
 
         var settings = SettingsLoader.LoadFromFile(bundledPath);
 
-        Assert.Contains("hey claude", settings.Speech.WakePhrases);
+        Assert.Contains("hey james", settings.Speech.WakePhrases);
     }
 }

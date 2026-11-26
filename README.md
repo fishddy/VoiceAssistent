@@ -1,6 +1,8 @@
+<p align="center"><img src="docs/AppIcon.png" alt="Voice Assistent icon" width="128"></p>
+
 # Voice Assistent
 
-A Windows tray application that listens to a microphone for a wake phrase ("hey claude"). When it hears it, a semi-transparent overlay with rounded corners appears on the main monitor and shows what you say. After a short pause, what you said is sent to ChatGPT and the answer appears right below it in the overlay. The overlay stays open until you say a close phrase ("danke"), then the app goes back to waiting for the wake phrase.
+A Windows tray application that listens to a microphone for a wake phrase ("hey james"). When it hears it, a semi-transparent overlay with rounded corners appears on the main monitor and shows what you say. After a short pause, what you said is sent to ChatGPT and the answer appears right below it in the overlay. The overlay stays open until you say a close phrase ("thanks james" or "danke james"), then the app goes back to waiting for the wake phrase.
 
 Speech recognition runs locally. Only the transcribed text is sent to ChatGPT.
 
@@ -29,7 +31,7 @@ cd VoiceAssistent
 dotnet run --project src/VoiceAssistent
 ```
 
-On first start the speech model is downloaded; a tray notification shows while that happens. After that, say "hey claude", ask your question, and say "danke" to close the overlay.
+On first start the speech model is downloaded; a tray notification shows while that happens. After that, say "hey james", ask your question, and say "thanks james" or "danke james" to close the overlay.
 
 To run the tests:
 
@@ -80,9 +82,9 @@ The bundled defaults live in `appsettings.json` next to the executable (`src/Voi
 | --- | --- | --- |
 | `Audio.InputDeviceId` | `null` | Windows endpoint ID of the microphone. `null`, or a device that is no longer connected, uses the Windows default recording device. |
 | `Speech.WakePhraseCulture` | `null` | Language of the wake phrase recognizer, e.g. `de-DE`. `null` picks the installed one matching the Windows display language. |
-| `Speech.WakePhrases` | `["hey claude", "hey klod"]` | Phrases that open the overlay. Extra spellings help recognizers of other languages match the pronunciation. |
+| `Speech.WakePhrases` | `["hey james"]` | Phrases that open the overlay. Extra spellings can help recognizers of other languages match the pronunciation. |
 | `Speech.WakePhraseMinimumConfidence` | `0.6` | Confidence (0 to 1) required to accept the wake phrase. Raise it if the overlay opens by mistake. |
-| `Speech.ClosePhrases` | `["danke"]` | The overlay closes when a transcribed sentence ends with one of these phrases. Case and punctuation are ignored; the phrase must be whole words. |
+| `Speech.ClosePhrases` | `["thanks james", "danke james"]` | The overlay closes when a transcribed sentence ends with one of these phrases. Case and punctuation are ignored; the phrase must be whole words. |
 | `Speech.TranscriptionLanguage` | `null` | Whisper language code such as `de` or `en`, `auto` to detect it, or `null` for the Windows display language. |
 | `Speech.TranscriptionModel` | `LargeV3Turbo` | `LargeV3Turbo`, `Medium`, `Small` or `Base`. |
 | `Chat.Instructions` | Short-answer instructions | Text placed before the first message of each conversation. Empty sends no instructions. |
