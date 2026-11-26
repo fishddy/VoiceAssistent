@@ -18,11 +18,11 @@ Speech recognition runs locally. Only the transcribed text is sent to ChatGPT.
 ## Getting started
 
 ```powershell
-git clone <repository-url>
+git clone https://github.com/fishddy/VoiceAssistent.git
 ```
 
 ```powershell
-cd VoiceAssistant
+cd VoiceAssistent
 ```
 
 ```powershell
