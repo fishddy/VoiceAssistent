@@ -1,4 +1,4 @@
-# Voice Assistant
+# Voice Assistent
 
 A Windows tray application that listens to a microphone for a wake phrase ("hey claude"). When it hears it, a semi-transparent overlay with rounded corners appears on the main monitor and shows what you say. After a short pause, what you said is sent to ChatGPT and the answer appears right below it in the overlay. The overlay stays open until you say a close phrase ("danke"), then the app goes back to waiting for the wake phrase.
 
@@ -26,7 +26,7 @@ cd VoiceAssistent
 ```
 
 ```powershell
-dotnet run --project src/VoiceAssistant
+dotnet run --project src/VoiceAssistent
 ```
 
 On first start the speech model is downloaded; a tray notification shows while that happens. After that, say "hey claude", ask your question, and say "danke" to close the overlay.
@@ -46,7 +46,7 @@ The app runs in the system tray. Right-click the tray icon for **Settings…** a
 3. After the wake phrase, speech is transcribed with [Whisper](https://github.com/openai/whisper) through [Whisper.net](https://github.com/sandrohanea/whisper.net). The text in the overlay is refreshed about once a second while you talk and finalized after a short pause.
 4. When you stop talking for the configured pause, what you said is sent to ChatGPT as a single question. The answer appears below your question, in an indented card marked "ChatGPT", while it is being written. Anything you say after that is ignored, except the close phrase.
 
-Models are stored in `%LOCALAPPDATA%\VoiceAssistant\Models`.
+Models are stored in `%LOCALAPPDATA%\VoiceAssistent\Models`.
 
 Whisper runs on the GPU through Vulkan when a Vulkan-capable graphics driver is installed and falls back to the CPU otherwise. On the CPU, the large models take many seconds per sentence; choose `Small` or `Base` in that case.
 
@@ -56,9 +56,9 @@ The app uses the free ChatGPT website, not the paid API. When the overlay opens,
 
 - Each time the overlay opens, a new ChatGPT conversation starts. Exactly one message is sent per overlay session: your question, preceded by the configured instructions, which ask ChatGPT to keep answers short.
 - The browser window always stays hidden, so ChatGPT is used without logging in. If ChatGPT is not ready or does not answer, the reason is shown in the overlay.
-- The browser profile (cookies and site data) is stored in `%LOCALAPPDATA%\VoiceAssistant\ChatGpt`.
+- The browser profile (cookies and site data) is stored in `%LOCALAPPDATA%\VoiceAssistent\ChatGpt`.
 
-Automating the ChatGPT website is not covered by OpenAI's terms of use, which only allow programmatic access through their API, so your ChatGPT account could be restricted. The page structure also changes from time to time; the element lookups are kept in `src/VoiceAssistant/Chat/ChatGptBridge.js` so they can be updated in one place.
+Automating the ChatGPT website is not covered by OpenAI's terms of use, which only allow programmatic access through their API, so your ChatGPT account could be restricted. The page structure also changes from time to time; the element lookups are kept in `src/VoiceAssistent/Chat/ChatGptBridge.js` so they can be updated in one place.
 
 ## Settings window
 
@@ -70,11 +70,11 @@ The tray settings window changes the most common options:
 - **ChatGPT**: the instructions sent with each question and the pause before sending.
 - **Speech recognition**: the transcription language and the Whisper model. Larger models are more accurate but slower.
 
-Saving restarts the listener with the new settings. Settings are saved to `%APPDATA%\VoiceAssistant\appsettings.json`. Once that file exists, it is used instead of the bundled defaults.
+Saving restarts the listener with the new settings. Settings are saved to `%APPDATA%\VoiceAssistent\appsettings.json`. Once that file exists, it is used instead of the bundled defaults.
 
 ## Configuration file
 
-The bundled defaults live in `appsettings.json` next to the executable (`src/VoiceAssistant/appsettings.json` in the source tree). Missing values fall back to their defaults; invalid values are reported on startup.
+The bundled defaults live in `appsettings.json` next to the executable (`src/VoiceAssistent/appsettings.json` in the source tree). Missing values fall back to their defaults; invalid values are reported on startup.
 
 | Setting | Default | Description |
 | --- | --- | --- |
