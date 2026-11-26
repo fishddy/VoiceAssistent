@@ -10,6 +10,7 @@ public static class WhisperModelStore
     private const string ApplicationFolderName = "VoiceAssistent";
     private const string ModelFolderName = "Models";
     private const string PartialDownloadExtension = ".part";
+    private static readonly TimeSpan DownloadTimeout = TimeSpan.FromHours(1);
 
     private static readonly string ModelDirectory = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -18,7 +19,10 @@ public static class WhisperModelStore
 
     public static bool IsDownloaded(TranscriptionModel model) => File.Exists(GetModelPath(model));
 
-    public static async Task<string> EnsureDownloadedAsync(TranscriptionModel model, CancellationToken cancellationToken)
+    public static async Task<string> EnsureDownloadedAsync(
+        TranscriptionModel model,
+        IProgress<int> downloadPercent,
+        CancellationToken cancellationToken)
     {
         var modelPath = GetModelPath(model);
         if (File.Exists(modelPath))
@@ -30,12 +34,21 @@ public static class WhisperModelStore
         var partialPath = modelPath + PartialDownloadExtension;
         var (type, quantization) = Describe(model);
 
+        var lengthRecorder = new ResponseLengthRecorder(new HttpClientHandler());
+        using var httpClient = new HttpClient(lengthRecorder) { Timeout = DownloadTimeout };
+        var downloader = new WhisperGgmlDownloader(httpClient);
+
         try
         {
-            await using (var source = await WhisperGgmlDownloader.Default.GetGgmlModelAsync(type, quantization, cancellationToken))
+            await using (var source = await downloader.GetGgmlModelAsync(type, quantization, cancellationToken))
             await using (var target = File.Create(partialPath))
             {
-                await source.CopyToAsync(target, cancellationToken);
+                await ProgressStreamCopier.CopyAsync(
+                    source,
+                    target,
+                    lengthRecorder.ContentLength,
+                    downloadPercent,
+                    cancellationToken);
             }
 
             File.Move(partialPath, modelPath, overwrite: true);

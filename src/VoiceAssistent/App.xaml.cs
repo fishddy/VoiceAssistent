@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using VoiceAssistent.Chat;
 using VoiceAssistent.Configuration;
+using VoiceAssistent.Overlay;
 using VoiceAssistent.Settings;
 using VoiceAssistent.Speech;
 
@@ -89,10 +90,13 @@ public partial class App : Application
     private async Task<AssistantPipeline?> StartPipelineAsync(AssistantSettings settings)
     {
         var trayIcon = _trayIcon!;
+        DownloadProgressWindow? downloadProgressWindow = null;
         if (!WhisperModelStore.IsDownloaded(settings.Speech.TranscriptionModel))
         {
             trayIcon.SetToolTip($"{ApplicationName} - downloading speech model…");
             trayIcon.ShowNotification(ApplicationName, "Downloading the speech model. This happens once and can take a few minutes.");
+            downloadProgressWindow = new DownloadProgressWindow();
+            downloadProgressWindow.Show();
         }
         else
         {
@@ -101,7 +105,8 @@ public partial class App : Application
 
         try
         {
-            var pipeline = await AssistantPipeline.StartAsync(settings, _chatGptBrowser, Dispatcher);
+            var downloadPercent = new Progress<int>(percent => downloadProgressWindow?.ShowPercent(percent));
+            var pipeline = await AssistantPipeline.StartAsync(settings, _chatGptBrowser, Dispatcher, downloadPercent);
             trayIcon.SetToolTip($"{ApplicationName} - {pipeline.InputDeviceName}");
             return pipeline;
         }
@@ -114,6 +119,10 @@ public partial class App : Application
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             return null;
+        }
+        finally
+        {
+            downloadProgressWindow?.Close();
         }
     }
 }

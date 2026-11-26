@@ -27,12 +27,13 @@ public sealed class AssistantPipeline : IAsyncDisposable
     public static async Task<AssistantPipeline> StartAsync(
         AssistantSettings settings,
         IChatPageProvider chatPages,
-        Dispatcher dispatcher)
+        Dispatcher dispatcher,
+        IProgress<int> modelDownloadPercent)
     {
         var pipeline = new AssistantPipeline();
         try
         {
-            await pipeline.BuildAsync(settings, chatPages, dispatcher);
+            await pipeline.BuildAsync(settings, chatPages, dispatcher, modelDownloadPercent);
             return pipeline;
         }
         catch
@@ -65,9 +66,16 @@ public sealed class AssistantPipeline : IAsyncDisposable
     private static string ResolveTranscriptionLanguage(SpeechSettings settings) =>
         settings.TranscriptionLanguage ?? CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
-    private async Task BuildAsync(AssistantSettings settings, IChatPageProvider chatPages, Dispatcher dispatcher)
+    private async Task BuildAsync(
+        AssistantSettings settings,
+        IChatPageProvider chatPages,
+        Dispatcher dispatcher,
+        IProgress<int> modelDownloadPercent)
     {
-        var modelPath = await WhisperModelStore.EnsureDownloadedAsync(settings.Speech.TranscriptionModel, CancellationToken.None);
+        var modelPath = await WhisperModelStore.EnsureDownloadedAsync(
+            settings.Speech.TranscriptionModel,
+            modelDownloadPercent,
+            CancellationToken.None);
         _transcriber = await WhisperTranscriber.LoadAsync(
             modelPath,
             ResolveTranscriptionLanguage(settings.Speech),
