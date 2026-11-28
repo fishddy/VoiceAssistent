@@ -16,6 +16,26 @@ public class AudioSamplesTests
     }
 
     [Fact]
+    public void FromPcm16_ReversesToPcm16()
+    {
+        float[] original = [0f, 0.5f, -0.25f, 1f, -1f];
+
+        var roundTripped = AudioSamples.FromPcm16(AudioSamples.ToPcm16(original));
+
+        Assert.Equal(original.Length, roundTripped.Length);
+        for (var index = 0; index < original.Length; index++)
+        {
+            Assert.Equal(original[index], roundTripped[index], precision: 4);
+        }
+    }
+
+    [Fact]
+    public void FromPcm16_IgnoresTrailingOddByte()
+    {
+        Assert.Single(AudioSamples.FromPcm16([0, 0, 7]));
+    }
+
+    [Fact]
     public void RootMeanSquare_ComputesSignalLevel()
     {
         Assert.Equal(0.5f, AudioSamples.RootMeanSquare([0.5f, -0.5f, 0.5f, -0.5f]), precision: 5);

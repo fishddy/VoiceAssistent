@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Speech.AudioFormat;
 using System.Speech.Recognition;
+using VoiceAssistent.Audio;
 using VoiceAssistent.Configuration;
 
 namespace VoiceAssistent.Speech;
@@ -24,7 +25,7 @@ public sealed class WakePhraseListener : IDisposable
         _engine.SpeechRecognized += OnSpeechRecognized;
     }
 
-    public event EventHandler? WakePhraseDetected;
+    public event EventHandler<float[]>? WakePhraseDetected;
 
     public void Start(Stream pcm16MonoAudio, int sampleRate)
     {
@@ -70,9 +71,18 @@ public sealed class WakePhraseListener : IDisposable
 
     private void OnSpeechRecognized(object? sender, SpeechRecognizedEventArgs e)
     {
-        if (e.Result.Grammar == _wakePhraseGrammar && e.Result.Confidence >= _minimumConfidence)
+        if (e.Result.Grammar == _wakePhraseGrammar
+            && e.Result.Confidence >= _minimumConfidence
+            && e.Result.Audio is { } audio)
         {
-            WakePhraseDetected?.Invoke(this, EventArgs.Empty);
+            WakePhraseDetected?.Invoke(this, ReadSamples(audio));
         }
+    }
+
+    private static float[] ReadSamples(RecognizedAudio audio)
+    {
+        using var pcm16 = new MemoryStream();
+        audio.WriteToAudioStream(pcm16);
+        return AudioSamples.FromPcm16(pcm16.ToArray());
     }
 }

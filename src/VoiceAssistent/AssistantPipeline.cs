@@ -12,6 +12,7 @@ public sealed class AssistantPipeline : IAsyncDisposable
 {
     private WhisperTranscriber? _transcriber;
     private DictationSession? _dictation;
+    private WakePhraseVerifier? _wakePhraseVerifier;
     private MicrophoneCapture? _capture;
     private BlockingAudioStream? _wakePhraseAudio;
     private WakePhraseListener? _wakePhraseListener;
@@ -45,6 +46,11 @@ public sealed class AssistantPipeline : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (_wakePhraseVerifier is not null)
+        {
+            await _wakePhraseVerifier.DisposeAsync();
+        }
+
         _controller?.Dispose();
         _batcher?.Dispose();
         _capture?.Dispose();
@@ -81,6 +87,7 @@ public sealed class AssistantPipeline : IAsyncDisposable
             ResolveTranscriptionLanguage(settings.Speech),
             MicrophoneCapture.SampleRate);
         _dictation = new DictationSession(_transcriber, MicrophoneCapture.SampleRate);
+        _wakePhraseVerifier = new WakePhraseVerifier(_transcriber, settings.Speech.WakePhrases);
 
         _wakePhraseListener = new WakePhraseListener(settings.Speech);
         _wakePhraseAudio = new BlockingAudioStream();
@@ -88,6 +95,7 @@ public sealed class AssistantPipeline : IAsyncDisposable
         _batcher = new UtteranceBatcher(settings.Chat.SendAfterPause, TimeProvider.System);
         _controller = new AssistantController(
             _wakePhraseListener,
+            _wakePhraseVerifier,
             _dictation,
             new OverlayWindow(settings.Overlay),
             new ClosePhraseDetector(settings.Speech.ClosePhrases),

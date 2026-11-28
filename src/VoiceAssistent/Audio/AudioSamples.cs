@@ -17,6 +17,18 @@ public static class AudioSamples
         return bytes;
     }
 
+    public static float[] FromPcm16(ReadOnlySpan<byte> bytes)
+    {
+        var samples = new float[bytes.Length / sizeof(short)];
+        for (var index = 0; index < samples.Length; index++)
+        {
+            var value = (short)(bytes[index * 2] | (bytes[index * 2 + 1] << 8));
+            samples[index] = value / (float)short.MaxValue;
+        }
+
+        return samples;
+    }
+
     public static float RootMeanSquare(ReadOnlySpan<float> samples)
     {
         if (samples.IsEmpty)

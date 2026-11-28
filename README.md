@@ -54,7 +54,7 @@ The app runs in the system tray. Right-click the tray icon for **Settings…** a
 ## How it works
 
 1. Audio is captured from the selected microphone (or the Windows default) and converted to 16 kHz mono.
-2. The wake phrase is detected with the classic Windows speech engine (`System.Speech`).
+2. The wake phrase is detected with the classic Windows speech engine (`System.Speech`). Because that engine also matches similar-sounding phrases, the recognized audio is then transcribed with Whisper, and the overlay only opens if the transcript contains one of the wake phrases as whole words.
 3. After the wake phrase, speech is transcribed with [Whisper](https://github.com/openai/whisper) through [Whisper.net](https://github.com/sandrohanea/whisper.net). The text in the overlay is refreshed about once a second while you talk and finalized after a short pause.
 4. When you stop talking for the configured pause, what you said is sent to ChatGPT as a single question. The answer appears below your question, in an indented card marked "ChatGPT", while it is being written. Anything you say after that is ignored, except the close phrase.
 
@@ -92,8 +92,8 @@ The bundled defaults live in `appsettings.json` next to the executable (`src/Voi
 | --- | --- | --- |
 | `Audio.InputDeviceId` | `null` | Windows endpoint ID of the microphone. `null`, or a device that is no longer connected, uses the Windows default recording device. |
 | `Speech.WakePhraseCulture` | `null` | Language of the wake phrase recognizer, e.g. `de-DE`. `null` picks the installed one matching the Windows display language. |
-| `Speech.WakePhrases` | `["hey james"]` | Phrases that open the overlay. Extra spellings can help recognizers of other languages match the pronunciation. |
-| `Speech.WakePhraseMinimumConfidence` | `0.6` | Confidence (0 to 1) required to accept the wake phrase. Raise it if the overlay opens by mistake. |
+| `Speech.WakePhrases` | `["hey james"]` | Phrases that open the overlay. Extra spellings can help recognizers of other languages match the pronunciation. At least one phrase must be spelled the way Whisper writes it (e.g. `hey james`), because the Whisper check compares the transcript with these phrases. |
+| `Speech.WakePhraseMinimumConfidence` | `0.6` | Confidence (0 to 1) the Windows speech engine needs before the Whisper check runs. Lower it if the wake phrase is often missed. |
 | `Speech.ClosePhrases` | `["thanks james", "danke james"]` | The overlay closes when a transcribed sentence ends with one of these phrases. Case and punctuation are ignored; the phrase must be whole words. |
 | `Speech.TranscriptionLanguage` | `null` | Whisper language code such as `de` or `en`, `auto` to detect it, or `null` for the Windows display language. |
 | `Speech.TranscriptionModel` | `LargeV3Turbo` | `LargeV3Turbo`, `Medium`, `Small` or `Base`. |

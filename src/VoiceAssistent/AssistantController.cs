@@ -8,6 +8,7 @@ namespace VoiceAssistent;
 public sealed class AssistantController : IDisposable
 {
     private readonly WakePhraseListener _wakePhraseListener;
+    private readonly WakePhraseVerifier _wakePhraseVerifier;
     private readonly DictationSession _dictation;
     private readonly OverlayWindow _overlay;
     private readonly ClosePhraseDetector _closePhraseDetector;
@@ -19,6 +20,7 @@ public sealed class AssistantController : IDisposable
 
     public AssistantController(
         WakePhraseListener wakePhraseListener,
+        WakePhraseVerifier wakePhraseVerifier,
         DictationSession dictation,
         OverlayWindow overlay,
         ClosePhraseDetector closePhraseDetector,
@@ -27,6 +29,7 @@ public sealed class AssistantController : IDisposable
         Dispatcher dispatcher)
     {
         _wakePhraseListener = wakePhraseListener;
+        _wakePhraseVerifier = wakePhraseVerifier;
         _dictation = dictation;
         _overlay = overlay;
         _closePhraseDetector = closePhraseDetector;
@@ -62,7 +65,22 @@ public sealed class AssistantController : IDisposable
         _overlay.Close();
     }
 
-    private void OnWakePhraseDetected(object? sender, EventArgs e) => _dispatcher.InvokeAsync(BeginConversation);
+    private void OnWakePhraseDetected(object? sender, float[] samples) => _ = ConfirmWakePhraseAsync(samples);
+
+    private async Task ConfirmWakePhraseAsync(float[] samples)
+    {
+        try
+        {
+            if (await _wakePhraseVerifier.IsWakePhraseAsync(samples))
+            {
+                await _dispatcher.InvokeAsync(BeginConversation);
+            }
+        }
+        catch (Exception exception)
+        {
+            ShowError($"Checking the wake phrase failed: {exception.Message}");
+        }
+    }
 
     private void OnSpeechStarted(object? sender, EventArgs e) => _batcher.SpeechStarted();
 
